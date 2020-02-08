@@ -17,8 +17,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //in order to use database you should give a chnace a name to your database
 
-    public static final String DATABASE_NAME= "myDatabase";
-    SQLiteDatabase mDataBase;
+//    public static final String DATABASE_NAME= "myDatabase";
+//    SQLiteDatabase mDataBase;
+
+
+    //new method
+    DatabaseHelper mDataBase;
 
     EditText edittextname , edittextsalary;
     Spinner spinnerDept;
@@ -36,14 +40,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.tvviewemployee).setOnClickListener(this);
 
         // in order to open or create a database we use the following code
-
+/*
         mDataBase = openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);
         createTable();
 
+*/
 
+//new method
+mDataBase = new DatabaseHelper(this);
 
     }
-
+/*
     private void createTable() {
         String sql = "CREATE TABLE IF NOT EXISTS employees (" +
                 "id INTEGER NOT NULL CONSTRAINT employee_pk PRIMARY KEY AUTOINCREMENT," +
@@ -55,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     }
+
+ */
 
     @Override
     public void onClick(View v) {
@@ -94,10 +103,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             edittextsalary.requestFocus();
             return;
         }
+
+        /*
         String sql = "INSERT INTO employees(name, department, joiningdate , salary)" +
                 "VALUES (?,?,?,?)";
         mDataBase.execSQL(sql ,new String[]{name,dept,joiningdate,salary});
+                Toast.makeText(this, "Employee added", Toast.LENGTH_SHORT).show();
+
+         */
+
+
+        //new method
+        if (mDataBase.addEmployee(name, dept, joiningdate, Double.parseDouble(salary)))
         Toast.makeText(this, "Employee added", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "Employee not added", Toast.LENGTH_SHORT).show();
+
 
     }
 }

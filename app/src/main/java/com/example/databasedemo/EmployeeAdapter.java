@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLDisplay;
@@ -27,9 +28,11 @@ public class EmployeeAdapter extends ArrayAdapter {
     Context mContext;
     int layoutRes;
     List<Employee> employees;
-    SQLiteDatabase mDatabase;
+    //SQLiteDatabase mDatabase;
 
-    public EmployeeAdapter( Context mContext, int layoutRes, List<Employee> employees, SQLiteDatabase mDatabase) {
+    DatabaseHelper mDatabase;
+
+    public EmployeeAdapter( Context mContext, int layoutRes, List<Employee> employees, DatabaseHelper mDatabase) {
         super(mContext, layoutRes,employees);
         this.mContext = mContext;
         this.layoutRes = layoutRes;
@@ -78,8 +81,13 @@ public class EmployeeAdapter extends ArrayAdapter {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                /*
                 String sql = "DELETE FROM employees WHERE id = ?";
                 mDatabase.execSQL(sql,new Integer[]{employee.getId()});
+
+                 */
+
+                if(mDatabase.deleteEmployee(employee.getId()))
                 loadEmployees();
             }
         });
@@ -110,8 +118,12 @@ public class EmployeeAdapter extends ArrayAdapter {
         final EditText etslary = v.findViewById(R.id.edittextsalary);
         final Spinner spinner = v.findViewById(R.id.spinnerdepartment);
 
+        String[] deptarray = mContext.getResources().getStringArray(R.array.departments);
+        int position = Arrays.asList(deptarray).indexOf(employee.getDept());
+
         etname.setText(employee.getName());
         etslary.setText(String.valueOf(employee.getSalary()));
+        spinner.setSelection(position);
 
         v.findViewById(R.id.btn_update_employee).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,14 +144,22 @@ public class EmployeeAdapter extends ArrayAdapter {
                     etslary.requestFocus();
                     return;
                 }
-
+/*
                 String sql = " UPDATE employees SET name =?,salary =?,department=? WHERE id = ?";
               mDatabase.execSQL(sql,new String[]{ name,salary,dept, String.valueOf(employee.getId())});
                 Toast.makeText(mContext, "employee update", Toast.LENGTH_SHORT).show();
 
-                loadEmployees();
+ */
+if(mDatabase.updateEmployee(employee.getId(), name, dept, Double.parseDouble(salary))){
+                    Toast.makeText(mContext, "employee update", Toast.LENGTH_SHORT).show();
+                    loadEmployees();
+                }
+else
+    Toast.makeText(mContext, "employee not update", Toast.LENGTH_SHORT).show();
 
+                // loadEmployees();
                 alertDialog.dismiss();
+
             }
         });
 
@@ -147,9 +167,12 @@ public class EmployeeAdapter extends ArrayAdapter {
     }
     private void loadEmployees() {
 
-
+/*
         String sql = "SELECT * FROM employees";
         Cursor cursor = mDatabase.rawQuery(sql, null);
+
+ */
+        Cursor cursor = mDatabase.getAllEmployees();
 
         if(cursor.moveToFirst()){
             employees.clear();
